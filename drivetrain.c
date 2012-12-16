@@ -38,57 +38,57 @@ void butterDrive(int leftPower, int rightPower) {
 	tankDrive(throttle+turning, throttle-turning);
 }
 
-float tSens = 1.5;                     //Cheesy drive turning sensitivity scalar
-float TURBO_MODE_TSENS = 2;      //Turbo mode turning sensitivity
-float NORMAL_MODE_TSENS = 1.5;   //Normal(slow) mode turning sensitivity
-float NORMAL_MODE_SCALAR = .8;   //Scalar for making normal mode slower than turbo mode
+//float tSens = 1.5;                     //Cheesy drive turning sensitivity scalar
+//float TURBO_MODE_TSENS = 2;      //Turbo mode turning sensitivity
+//float NORMAL_MODE_TSENS = 1.5;   //Normal(slow) mode turning sensitivity
+//float NORMAL_MODE_SCALAR = .8;   //Scalar for making normal mode slower than turbo mode
 
-bool isTurboMode = true;             //Defaults to turbo mode. Turbo mode is full speed
+//bool isTurboMode = true;             //Defaults to turbo mode. Turbo mode is full speed
 
-void cheesyDrive(int throttle, int wheel, bool quickTurn) {
+//void cheesyDrive(int throttle, int wheel, bool quickTurn) {
 
-	//throttle = (float)((float)throttle)/100.0;
-	//wheel = (float)((float)wheel)/100.0;
+//	//throttle = (float)((float)throttle)/100.0;
+//	//wheel = (float)((float)wheel)/100.0;
 
-	int angular_power = 0;
-	int overPower = 0;
-	float sensitivity = tSens;
-	int rPower = 0;
-	int lPower = 0;
+//	int angular_power = 0;
+//	int overPower = 0;
+//	float sensitivity = tSens;
+//	int rPower = 0;
+//	int lPower = 0;
 
-	if(quickTurn) {
-		overPower = 100;
-		sensitivity = 1.0;
-		angular_power = wheel;
-	}
-	else {
-		overPower = 0;
-		angular_power = (int)((float)((abs(throttle) * wheel)/10000) * sensitivity);
-	}
+//	if(quickTurn) {
+//		overPower = 100;
+//		sensitivity = 1.0;
+//		angular_power = wheel;
+//	}
+//	else {
+//		overPower = 0;
+//		angular_power = (int)((float)((abs(throttle) * wheel)/10000) * sensitivity);
+//	}
 
-	rPower = lPower = throttle;
-	lPower += angular_power;
-	rPower -= angular_power;
+//	rPower = lPower = throttle;
+//	lPower += angular_power;
+//	rPower -= angular_power;
 
-	if(lPower > 100) {
-		rPower -= overPower * (lPower - 100);
-		lPower = 100;
-	}
-	else if(rPower > 1.0) {
-		lPower -= overPower * (rPower - 100);
-		rPower = 100;
-	}
-	else if(lPower < -100) {
-		rPower += overPower * (-100 - lPower);
-		lPower = -100;
-	}
-	else if(rPower < -100) {
-		lPower += overPower * (-100 - rPower);
-		rPower = -100;
-	}
+//	if(lPower > 100) {
+//		rPower -= overPower * (lPower - 100);
+//		lPower = 100;
+//	}
+//	else if(rPower > 1.0) {
+//		lPower -= overPower * (rPower - 100);
+//		rPower = 100;
+//	}
+//	else if(lPower < -100) {
+//		rPower += overPower * (-100 - lPower);
+//		lPower = -100;
+//	}
+//	else if(rPower < -100) {
+//		lPower += overPower * (-100 - rPower);
+//		rPower = -100;
+//	}
 
-	tankDrive(lPower, rPower);
-}
+//	tankDrive(lPower, rPower);
+//}
 
 #else
 #error "Motor and sensor configuration file not included!"
