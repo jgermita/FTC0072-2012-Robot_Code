@@ -1,8 +1,9 @@
 #include "utils.h"
 
 #define STOW 0
-#define MID 216
+#define MID 215
 #define GRAB 60
+#define TOP 320
 
 void setMotorOut(int power) {
 	bool topLimit = false;

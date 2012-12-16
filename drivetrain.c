@@ -3,6 +3,11 @@
 int leftEnc = 0;
 int rightEnc = 0;
 
+void resetEncoders() {
+	nMotorEncoder[left] = 0;
+	nMotorEncoder[right] = 0;
+}
+
 void tankDrive(int leftPower, int rightPower) {
 	leftPower = (abs(leftPower) < 10) ? 0 : leftPower;
 	rightPower = (abs(rightPower) < 10) ? 0 : rightPower;
