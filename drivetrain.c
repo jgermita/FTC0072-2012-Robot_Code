@@ -90,6 +90,54 @@ void butterDrive(int leftPower, int rightPower) {
 //	tankDrive(lPower, rPower);
 //}
 
+float distanceExpDec(int distance, int maxSpeed) {
+	float	distAttenuation = 0.01;
+	float answer = 1.0;
+	distAttenuation *= -abs(distance);
+	answer -= pow(2.718, distAttenuation);
+	answer *= (float) maxSpeed*sgn(distance);
+	return answer;
+}
+
+
+void driveDistance(int inches, int maxSpeed) {
+	int countsPerRotation = 720;
+
+	float setpoint = inches;
+	setpoint *= (countsPerRotation);
+	setpoint /= 3.0*PI;
+
+
+	int distanceL = ((int)setpoint - leftEnc);
+	int distanceR = ((int)setpoint - rightEnc);
+
+	tankDrive(distanceExpDec(distanceL, maxSpeed), distanceExpDec(distanceR, maxSpeed));
+}
+
+float angleExpDec(int error, int maxSpeed) {
+	float	attenuation = 0.1;
+	float answer = 1.0;
+	attenuation *= -abs(error);
+	answer -= pow(2.718, attenuation);
+	answer *= (float) maxSpeed*sgn(error);
+	return answer;
+}
+void driveAngle(float degrees, int maxSpeed, int angle) {
+	float error = degrees - angle;
+	float threshold = 1.0;
+	int output = 0;
+
+	if(abs(error) > threshold) {
+		output = angleExpDec(error, maxSpeed);
+		} else {
+		output = 0;
+	}
+	//writeDebugStreamLine("angle: %f", getAngle());
+	tankDrive(output, -output);
+}
+
+
+
 #else
 #error "Motor and sensor configuration file not included!"
 #endif

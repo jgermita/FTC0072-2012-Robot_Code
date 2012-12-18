@@ -3,7 +3,7 @@ float angle = 0.0;
 float angle2 = 0.0;
 int time = 0;
 int prevTime = 0;
-float maxRate = 180.0;
+float maxRate = 270.0;
 float gyro_old = 0 ;
 
 void initGyro() {
@@ -33,11 +33,11 @@ void updateHeading() {
 	angle += (float)dt*0.5*(gyro_new+gyro_old)/1000.0;
 
 
-	if(angle >= 360.0) {
-		angle -= 360.0;
-	} else if(angle <= 0) {
-		angle += 360.0;
-	}
+	//if(angle >= 180.0) {
+	//	angle -= 360.0;
+	//} else if(angle <= -180.0) {
+	//	angle += 360.0;
+	//}
 
 	gyro_old = gyro_new;
 	wait1Msec(delay);
