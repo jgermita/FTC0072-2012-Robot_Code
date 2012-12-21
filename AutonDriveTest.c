@@ -9,7 +9,7 @@
 //#include "JoystickDriver.c"  //Include file to "handle" the Bluetooth messages.
 #include "config.c"
 #include "drivetrain.c"
-#include "gyro.c"
+//#include "gyro.c"
 
 
 void initializeRobot()
@@ -34,7 +34,7 @@ task main()
 	///////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////
 	int setpoint = 0;
-	StartTask(GyroTask);
+	initDrivetrain();
 
 	ClearTimer(T1);
 
@@ -45,11 +45,13 @@ task main()
 		if(joy1Btn(1)) setpoint = 0;
 		if(joy1Btn(2)) setpoint = 12;
 		if(joy1Btn(3)) setpoint = 24;
-		if(joy1Btn(4)) setpoint = 48;
+		if(joy1Btn(4)) setpoint = 36;
+
+		if(joy1Btn(6)) setpoint -= joystick.joy1_y1/10;
 
 
 
-		driveDistance(setpoint, 75);
+		driveDistance(setpoint, 100);
 	//	writeDebugStreamLine("angle: %f", getAngle());
 	}
 }

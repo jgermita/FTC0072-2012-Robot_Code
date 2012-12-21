@@ -10,91 +10,66 @@
 #include "config.c"
 #ifdef configured
 #include "Drivetrain.c"
-#include "gyro.c"
+#include "elevator.c"
 
+#define STOW_BTN 1
+#define GRAB_BTN 2
+#define MID_BTN 3
+#define TOP_BTN 4
+
+/* Title: operator
+ * Parameters: none
+ * Returns: none
+ * Description: encloses operator commands in one function for easy tweaking
+ */
 void operator() {
-	int liftPower = (joystick.joy2_y2*100)/128;//(joystick.joy2_y2*3)/4;
-	int fineAdjust = (joystick.joy2_y1*100)/128;
-  fineAdjust = (abs(fineAdjust) < 10) ? 0 : fineAdjust;
-	fineAdjust /= 5;
-  liftPower = (abs(liftPower) < 10) ? 0 : liftPower;
-	liftPower += fineAdjust;
+	int rawJoystick = 0;														//Open Loop Joystick input
+	rawJoystick += (joystick.joy2_y2*100)/128;
+	rawJoystick -= ((joystick.joy2_y1*100)/128)/3;
 
-	if(joy2Btn(6)) {
-		liftPower = -30;
-		} else if(joy2Btn(8)) {
-		if(time10[T1] % 10 < 5) {
-			liftPower = 85;
-			} else {
-			liftPower = 0;
-		}
+	if(joy2Btn(STOW_BTN)) {				//Logic for choosing setpoints or open loop control
+		closedLoopInput(STOW, true);
+	} else if(GRAB_BTN) {
+		closedLoopInput(GRAB, true);
+	} else if(MID_BTN) {
+		closedLoopInput(MID, true);
+	} else if(TOP_BTN) {
+		closedLoopInput(TOP, true);
+	} else {
+		openLoopInput(rawJoystick);
 	}
-	int elevEnc = nMotorEncoder[elevator]*-1;
-	elevEnc /= 10;
-	if(joy2Btn(4)) {
-		if(elevEnc < 216) {
-			liftPower = 100;
-		} else if(elevEnc > 225) {
-			liftPower = -80;
-		}
-	}
-	if(joy2Btn(1)) {
-
-		if(elevEnc > 7) {
-			liftPower = -100;
-		}
-	}
-	if(joy2Btn(10)) {
-
-		if(elevEnc < 320) {
-			liftPower = 100;
-		}
-	}
-	if(joy2Btn(2)) {
-		if(elevEnc < 55) {
-			liftPower = 100;
-		} else if(elevEnc > 65) {
-			liftPower = -80;
-		}
-	}
-	if(joy2Btn(3)) {
-		if(elevEnc < 180) {
-			liftPower = 100;
-		} else if(elevEnc > 190) {
-			liftPower = -80;
-		}
-	}
-
-
-	writeDebugStream("Elevator Encoder: ");
-	writeDebugStreamLine("%d", elevEnc);
-
-
-
-
-	motor[elevator] = liftPower;
 }
 
+/* Title: main
+ * Parameters: none
+ * Returns: none
+ * Description: main task. initiates auxillary tasks and contains driver inputs
+ */
 task main() {
-	ClearTimer(T1);
-	nMotorEncoder[left] = 0;
-	nMotorEncoder[right] = 0;
-	nMotorEncoder[elevator] = 0;
+	ClearTimer(T1);	 //Clear timer 1 for checking to see how long the robot waits before starting
+	initDrivetrain();//Initialize systems
+	initElevator();
+	StartTask(ElevatorControlTask);	//begin elevator control task
 
-	waitForStart();
+	waitForStart(); //Wait for FCS start
+
+	if(time1[T1] >= 60000)  {	//if robot has been sitting for a while before startin, call init again to zero and reset gyro and encoders
+		initDrivetrain();
+		initElevator();
+	}
+
+	ClearTimer(T1);	//Clear Timer 1 for robot functions before operation starts
 	while(true) {
-		getJoystickSettings(joystick);
+		getJoystickSettings(joystick);	//Get FCS controller data
+		operator();	//Run operator commands
 
-		//tankDrive(joystick.joy1_y1, joystick.joy1_y2);
-		operator();
-
-		int left = (joystick.joy1_y1*100)/128;
+		int left = (joystick.joy1_y1*100)/128;		//Driver inputs, scaled to the motor controller input range of +- 100
 		int right = (joystick.joy1_y2*100)/128;
 
+		tankDrive(left, right);
 
-		//cheesyDrive(left, right, joy1Btn(6));
-		butterDrive(left, right)
-		//tankDrive(left, right);
+		writeDebugStream("Enabled for %f", (float)time1[T1]/1000.0);	//Enabled timer
+		writeDebugStreamLine(" seconds");
 	}
 }
 #endif
