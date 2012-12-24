@@ -3,6 +3,16 @@
 int leftEnc = 0;
 int rightEnc = 0;
 
+float leftVel = 0;
+float rightVel =0;
+
+int countsToInches(int counts) {
+	int countsPerRotation = 720;
+	counts *= (countsPerRotation);
+	counts /= 3.0*PI;
+	return counts;
+}
+
 
 /* Title: resetEncoders
  * Parameters: none
@@ -38,6 +48,8 @@ void tankDrive(int leftPower, int rightPower) {
 
 	leftEnc = nMotorEncoder[left];
 	rightEnc = nMotorEncoder[right]*-1;
+
+	rightPower = (int)((float)rightPower*.875);
 
 	motor[left] = leftPower;
 	motor[right] = -rightPower;
