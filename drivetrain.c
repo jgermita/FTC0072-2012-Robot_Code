@@ -1,7 +1,9 @@
 #ifdef configured
 #include "gyro.c"
 int leftEnc = 0;
+int prevLeft = 0;
 int rightEnc = 0;
+int prevRight = 0;
 
 float leftVel = 0;
 float rightVel =0;
@@ -43,16 +45,42 @@ void initDrivetrain() {
  * Description: processes and outputs drive commands to motor controllers
  */
 void tankDrive(int leftPower, int rightPower) {
-	leftPower = (abs(leftPower) < 10) ? 0 : leftPower;
-	rightPower = (abs(rightPower) < 10) ? 0 : rightPower;
+	//leftPower = (abs(leftPower) < 10) ? 0 : leftPower;
+	//rightPower = (abs(rightPower) < 10) ? 0 : rightPower;
 
-	leftEnc = nMotorEncoder[left];
+	prevRight = rightEnc;
 	rightEnc = nMotorEncoder[right]*-1;
 
-	rightPower = (int)((float)rightPower*.875);
+	if(rightEnc != prevright) {
+		rightVel = rightEnc - prevright;
+		rightVel /=deltaT;
+		rightVel *= 1000.0;
+	}
+
+	writeDebugStreamLine("Vel: %f", rightVel);
+	//rightEnc = nMotorEncoder[right]*-1;
+
+	//rightPower = (int)((float)rightPower*.875);
 
 	motor[left] = leftPower;
 	motor[right] = -rightPower;
+}
+
+void inverseSquareTankDrive(float leftPower, float rightPower) {
+	float outputL = 12*(sqrt(abs(leftPower/2)))*sgn(leftPower);
+	float outputR = 12*(sqrt(abs(rightPower/2)))*sgn(rightPower);
+
+	//if(abs(leftPower) < 30) {
+	//	outputL = leftPower;
+	//}
+	//if(abs(rightPower) < 30) {
+	//	outputR = rightPower;
+	//}
+
+	if(abs(outputL) > 100) outputL = 100*sgn(outputL);
+	if(abs(outputR) > 100) outputR = 100*sgn(outputR);
+	writeDebugStreamLine("LeftOutput: %f", outputL);
+	tankDrive((int)outputL, (int) outputR);
 }
 
 
@@ -70,7 +98,7 @@ void tankDrive(int leftPower, int rightPower) {
 //	tankDrive(throttle+turning, throttle-turning);
 //}
 
-//float tSens = 1.5;                     //Cheesy drive turning sensitivity scalar
+//float tSens = 1.5;               //Cheesy drive turning sensitivity scalar
 //float TURBO_MODE_TSENS = 2;      //Turbo mode turning sensitivity
 //float NORMAL_MODE_TSENS = 1.5;   //Normal(slow) mode turning sensitivity
 //float NORMAL_MODE_SCALAR = .8;   //Scalar for making normal mode slower than turbo mode

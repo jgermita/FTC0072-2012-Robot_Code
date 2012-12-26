@@ -85,23 +85,44 @@ task main() {
 		timeEnabled = time1[T1]/1000.0;
 
 		getJoystickSettings(joystick);	//Get FCS controller data
-		operator();	//Run operator commands
+		//operator();	//Run operator commands
 
 		int left = (joystick.joy1_y1*100)/128;		//Driver inputs, scaled to the motor controller input range of +- 100
 		int right = (joystick.joy1_y2*100)/128;
 
+		//int throttle = (joystick.joy1_y1*100)/128;		//Driver inputs, scaled to the motor controller input range of +- 100
+		//int turn = (joystick.joy1_x2*100)/128;
+//		inverseSquareTankDrive(left, right);
 
-		tankDrive(left, right);
+		writeDebugStreamLine("Sampling Started...");
+		//PlaySound(soundBeepBeep);
+		for(int i = 0; i <= 100; i++) {
+		deltaT = time1[T1] - timeEnabled;
+		timeEnabled = time1[T1]/1000.0;
 
-		if(joy1Btn(5) && joy1Btn(6) && timeEnabled > ENDGAME_DELAY) {
-			servo[rampLatch] = RAMP_DEPLOYED;
-			wait1Msec(STAGE_DELAY);
-			servo[platLatch] = PLAT_DEPLOYED;
-			PlaySound(soundFastUpwardTones);
-			} else {
-			servo[rampLatch] = PLAT_DEPLOYED;
-			servo[platLatch] = PLAT_CLOSED;
+			for(int j = 0; j <= 10; j++) {
+						deltaT = time1[T1] - timeEnabled;
+		timeEnabled = time1[T1]/1000.0;
+
+				tankDrive(0, i);
+				wait1Msec(80);
+			}
 		}
+
+		PlaySound(soundBeepBeep);
+		writeDebugStreamLine("Sampling done");
+		break;
+		////tankDrive(throttle + turn, throttle - turn);
+
+		//if(joy1Btn(5) && joy1Btn(6) && timeEnabled > ENDGAME_DELAY) {
+		//	servo[rampLatch] = RAMP_DEPLOYED;
+		//	wait1Msec(STAGE_DELAY);
+		//	servo[platLatch] = PLAT_DEPLOYED;
+		////	PlaySound(soundFastUpwardTones);
+		//	} else {
+		//	servo[rampLatch] = RAMP_CLOSED;
+		//	servo[platLatch] = PLAT_CLOSED;
+		//}
 
 		//writeDebugStream("Enabled for %f", timeEnabled);	//Enabled timer
 		//writeDebugStreamLine(" seconds");
