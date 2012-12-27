@@ -1,6 +1,7 @@
 #pragma config(Hubs,  S1, HTServo,  HTMotor,  HTMotor,  none)
 #pragma config(Sensor, S1,     ,               sensorI2CMuxController)
 #pragma config(Sensor, S2,     Gyro,           sensorI2CHiTechnicGyro)
+#pragma config(Sensor, S3,     HTPB,                sensorI2CCustom9V)
 #pragma config(Motor,  mtr_S1_C2_1,     elevator,      tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S1_C2_2,     motorE,        tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S1_C3_1,     left,          tmotorTetrix, openLoop)
@@ -19,6 +20,8 @@ float deltaT = 0;
 #ifdef configured
 #include "Drivetrain.c"
 #include "elevator.c"
+#include "SignalLightStrip.c"
+
 
 #define STOW_BTN 1
 #define GRAB_BTN 2
@@ -71,6 +74,8 @@ task main() {
 	initDrivetrain();//Initialize systems
 	initElevator();
 	StartTask(ElevatorControlTask);	//begin elevator control task
+	StartTask(SignalLight);
+	setMode(IDLE);
 
 	waitForStart(); //Wait for FCS start
 
@@ -90,28 +95,36 @@ task main() {
 		int left = (joystick.joy1_y1*100)/128;		//Driver inputs, scaled to the motor controller input range of +- 100
 		int right = (joystick.joy1_y2*100)/128;
 
-		//int throttle = (joystick.joy1_y1*100)/128;		//Driver inputs, scaled to the motor controller input range of +- 100
-		//int turn = (joystick.joy1_x2*100)/128;
-//		inverseSquareTankDrive(left, right);
+		int throttle = (joystick.joy1_y1*100)/128;		//Driver inputs, scaled to the motor controller input range of +- 100
+		int turn = (joystick.joy1_x2*100)/128;
+		linearTankDrive(throttle + turn, throttle - turn);
 
-		writeDebugStreamLine("Sampling Started...");
-		//PlaySound(soundBeepBeep);
-		for(int i = 0; i <= 100; i++) {
-		deltaT = time1[T1] - timeEnabled;
-		timeEnabled = time1[T1]/1000.0;
-
-			for(int j = 0; j <= 10; j++) {
-						deltaT = time1[T1] - timeEnabled;
-		timeEnabled = time1[T1]/1000.0;
-
-				tankDrive(0, i);
-				wait1Msec(80);
-			}
+		if(timeEnabled >= 110) {
+			setMode(SUPER_CRITICAL);
+		} else if(timeEnabled >= 75) {
+			setMode(CRITICAL);
+		} else {
+			setMode(ACTIVE);
 		}
 
-		PlaySound(soundBeepBeep);
-		writeDebugStreamLine("Sampling done");
-		break;
+		//writeDebugStreamLine("Sampling Started...");
+		////PlaySound(soundBeepBeep);
+		//for(int i = 0; i <= 100; i++) {
+		//deltaT = time1[T1] - timeEnabled;
+		//timeEnabled = time1[T1]/1000.0;
+
+		//	for(int j = 0; j <= 10; j++) {
+		//				deltaT = time1[T1] - timeEnabled;
+		//timeEnabled = time1[T1]/1000.0;
+
+		//		tankDrive(0, i);
+		//		wait1Msec(80);
+		//	}
+		//}
+
+		//PlaySound(soundBeepBeep);
+		//writeDebugStreamLine("Sampling done");
+		//break;
 		////tankDrive(throttle + turn, throttle - turn);
 
 		//if(joy1Btn(5) && joy1Btn(6) && timeEnabled > ENDGAME_DELAY) {

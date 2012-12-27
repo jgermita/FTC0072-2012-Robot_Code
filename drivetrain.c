@@ -45,8 +45,8 @@ void initDrivetrain() {
  * Description: processes and outputs drive commands to motor controllers
  */
 void tankDrive(int leftPower, int rightPower) {
-	//leftPower = (abs(leftPower) < 10) ? 0 : leftPower;
-	//rightPower = (abs(rightPower) < 10) ? 0 : rightPower;
+	leftPower = (abs(leftPower) <= 7) ? 0 : leftPower;
+	rightPower = (abs(rightPower) <= 7) ? 0 : rightPower;
 
 	prevRight = rightEnc;
 	rightEnc = nMotorEncoder[right]*-1;
@@ -66,21 +66,21 @@ void tankDrive(int leftPower, int rightPower) {
 	motor[right] = -rightPower;
 }
 
-void inverseSquareTankDrive(float leftPower, float rightPower) {
+void linearTankDrive(float leftPower, float rightPower) {
 	float outputL = 12*(sqrt(abs(leftPower/2)))*sgn(leftPower);
 	float outputR = 12*(sqrt(abs(rightPower/2)))*sgn(rightPower);
 
-	//if(abs(leftPower) < 30) {
-	//	outputL = leftPower;
-	//}
-	//if(abs(rightPower) < 30) {
-	//	outputR = rightPower;
-	//}
+	if(abs(leftPower) < 40) {
+		outputL = leftPower*5/4;
+	}
+	if(abs(rightPower) < 40) {
+		outputR = rightPower*5/4;
+	}
 
 	if(abs(outputL) > 100) outputL = 100*sgn(outputL);
 	if(abs(outputR) > 100) outputR = 100*sgn(outputR);
 	writeDebugStreamLine("LeftOutput: %f", outputL);
-	tankDrive((int)outputL, (int) outputR);
+	tankDrive((int)outputL, (int)outputR);
 }
 
 
