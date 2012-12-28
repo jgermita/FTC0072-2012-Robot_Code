@@ -16,18 +16,8 @@
 
 float timeEnabled = 0;
 float deltaT = 0;
-#include "config.c"
+#include "TyphoonCommon.c"
 #ifdef configured
-#include "Drivetrain.c"
-#include "elevator.c"
-#include "SignalLightStrip.c"
-
-
-#define STOW_BTN 1
-#define GRAB_BTN 2
-#define MID_BTN 3
-#define TOP_BTN 4
-
 
 /* Title: operator
 * Parameters: none
@@ -43,17 +33,17 @@ void operator() {
 		isOpenLoop = false;
 		closedLoopInput(STOW, true);
 	} else if(joy2Btn(GRAB_BTN)) {
-	isOpenLoop = false;
+		isOpenLoop = false;
 		closedLoopInput(GRAB, true);
 	} else if(joy2Btn(MID_BTN)) {
-	isOpenLoop = false;
+		isOpenLoop = false;
 		closedLoopInput(MID, true);
 	} else if(joy2Btn(TOP_BTN)) {
-	isOpenLoop = false;
+		isOpenLoop = false;
 		closedLoopInput(TOP, true);
 	} else {
-	isOpenLoop = true;
-	openLoopInput(rawJoystick);
+		isOpenLoop = true;
+		openLoopInput(rawJoystick);
 	}
 
 	if(joy2Btn(9) && joy2Btn(10)) {
@@ -67,15 +57,7 @@ void operator() {
 * Description: main task. initiates auxillary tasks and contains driver inputs
 */
 task main() {
-	servo[rampLatch] = 20;
-
-	servo[platLatch] = 255;
-	ClearTimer(T1);	 //Clear timer 1 for checking to see how long the robot waits before starting
-	initDrivetrain();//Initialize systems
-	initElevator();
-	StartTask(ElevatorControlTask);	//begin elevator control task
-	StartTask(SignalLight);
-	setMode(IDLE);
+	initRobot();
 
 	waitForStart(); //Wait for FCS start
 
@@ -90,7 +72,7 @@ task main() {
 		timeEnabled = time1[T1]/1000.0;
 
 		getJoystickSettings(joystick);	//Get FCS controller data
-		//operator();	//Run operator commands
+		operator();	//Run operator commands
 
 		int left = (joystick.joy1_y1*100)/128;		//Driver inputs, scaled to the motor controller input range of +- 100
 		int right = (joystick.joy1_y2*100)/128;
@@ -127,15 +109,15 @@ task main() {
 		//break;
 		////tankDrive(throttle + turn, throttle - turn);
 
-		//if(joy1Btn(5) && joy1Btn(6) && timeEnabled > ENDGAME_DELAY) {
-		//	servo[rampLatch] = RAMP_DEPLOYED;
-		//	wait1Msec(STAGE_DELAY);
-		//	servo[platLatch] = PLAT_DEPLOYED;
-		////	PlaySound(soundFastUpwardTones);
-		//	} else {
-		//	servo[rampLatch] = RAMP_CLOSED;
-		//	servo[platLatch] = PLAT_CLOSED;
-		//}
+		if(joy1Btn(5) && joy1Btn(6) && timeEnabled > ENDGAME_DELAY) {
+			servo[rampLatch] = RAMP_DEPLOYED;
+			wait1Msec(STAGE_DELAY);
+			servo[platLatch] = PLAT_DEPLOYED;
+		//	PlaySound(soundFastUpwardTones);
+			} else {
+			servo[rampLatch] = RAMP_CLOSED;
+			servo[platLatch] = PLAT_CLOSED;
+		}
 
 		//writeDebugStream("Enabled for %f", timeEnabled);	//Enabled timer
 		//writeDebugStreamLine(" seconds");

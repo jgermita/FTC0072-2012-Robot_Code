@@ -8,7 +8,9 @@
 int currMode = 0;
 
 void setMode(int mode) {
+	hogCPU();
 	currMode = mode;
+	releaseCPU();
 }
 
 task SignalLight()

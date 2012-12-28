@@ -11,7 +11,7 @@ int e_current = 0;
 int openLoopPower = 0;
 
 
-#define ELEVATOR_ATTEN_FACTOR 0.10
+#define ELEVATOR_ATTEN_FACTOR 0.15
 #define ELEVATOR_UP_SPEED 100
 #define ELEVATOR_DN_SPEED -80
 
@@ -46,7 +46,7 @@ void initElevator() {
 */
 void setMotorOut(int power) {
 
-	if(sgn(e_current) == -1) {	//if encoder is negative, reset the encoder
+	if(e_current <= 0) {	//if encoder is negative, reset the encoder
 		resetElevatorEncoder();
 	}
 

@@ -48,16 +48,17 @@ void tankDrive(int leftPower, int rightPower) {
 	leftPower = (abs(leftPower) <= 7) ? 0 : leftPower;
 	rightPower = (abs(rightPower) <= 7) ? 0 : rightPower;
 
-	prevRight = rightEnc;
+	//prevRight = rightEnc;
+	leftEnc = nMotorEncoder[left];
 	rightEnc = nMotorEncoder[right]*-1;
 
-	if(rightEnc != prevright) {
-		rightVel = rightEnc - prevright;
-		rightVel /=deltaT;
-		rightVel *= 1000.0;
-	}
+	//if(rightEnc != prevright) {
+	//	rightVel = rightEnc - prevright;
+	//	rightVel /=deltaT;
+	//	rightVel *= 1000.0;
+	//}
 
-	writeDebugStreamLine("Vel: %f", rightVel);
+	//writeDebugStreamLine("Vel: %f", rightVel);
 	//rightEnc = nMotorEncoder[right]*-1;
 
 	//rightPower = (int)((float)rightPower*.875);
@@ -183,6 +184,9 @@ void driveDistance(int inches, int maxSpeed) {
 
 	int distanceL = ((int)setpoint - leftEnc);
 	int distanceR = ((int)setpoint - rightEnc);
+
+	writeDebugStreamLine("Left Encoder: %d", leftEnc);
+	writeDebugStreamLine("Right Encoder: %d", rightEnc);
 
 	tankDrive(distanceExpDec(distanceL, maxSpeed), distanceExpDec(distanceR, maxSpeed));
 }
